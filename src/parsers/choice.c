@@ -48,7 +48,7 @@ static void desugar_choice(HAllocator *mm__, HCFStack *stk__, void *env) {
 
 static bool choice_ctrvm(HRVMProg *prog, void* env) {
   HParserArray *s = (HParserArray*)env;
-  uint16_t gotos[s->len]; // TODO(uucidl) hum, not supported in MSVC
+  uint16_t* gotos = h_platform_stack_alloc_n(s->len, sizeof(*gotos));
   for (size_t i=0; i<s->len; ++i) {
     uint16_t insn = h_rvm_insert_insn(prog, RVM_FORK, 0);
     if (!h_compile_regex(prog, s->p_array[i]))

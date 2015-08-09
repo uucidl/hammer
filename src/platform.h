@@ -8,7 +8,17 @@
 
 #include "compiler_specifics.h"
 
+#include <stddef.h>
 #include <stdint.h>
+
+/* Call Stack Allocation i.e. `alloca` */
+
+/**
+ * Allocate an array of elements on the stack and returns a pointer to it.
+ *
+ * Result is platform dependent when the stack is exhausted.
+ */
+void* h_platform_stack_alloc_n(size_t elem_count, size_t elem_size);
 
 /* Error Reporting */
 

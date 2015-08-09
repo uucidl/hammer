@@ -1,6 +1,6 @@
 #include "platform.h"
 
-#include <stdarg.h>
+#include <alloca.h>
 
 #ifdef __MACH__
 #include <mach/clock.h>
@@ -10,6 +10,11 @@
 #ifdef __NetBSD__
 #include <sys/resource.h>
 #endif
+
+void* h_platform_stack_alloc_n(size_t elem_count, size_t elem_size)
+{
+  return alloca(elem_count * elem_size);
+}
 
 static void h_benchmark_clock_gettime(struct timespec *ts) {
   if (ts == NULL)

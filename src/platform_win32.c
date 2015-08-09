@@ -3,6 +3,11 @@
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 
+void* h_platform_stack_alloc_n(size_t elem_count, size_t elem_size)
+{
+  return _alloca(elem_count * elem_size);
+}
+
 void h_platform_errx(int err, const char* format, ...) {
   // FIXME(windows) TODO(uucidl): to be implemented
   ExitProcess(err);
