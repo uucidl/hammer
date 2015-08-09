@@ -40,6 +40,7 @@ static inline HParser** copy_args_with_sentinel(void *args[], HParser *dest[]) {
   return dest;
 }
 
+// TODO(uucidl): name should be corrected
 static inline
 HParserArray* sequence_for_args_with_sentinel(HAllocator* mm__, void *args[]) {
   size_t len = count_args_with_sentinel(args);
