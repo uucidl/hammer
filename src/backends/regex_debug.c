@@ -50,8 +50,6 @@ const char* svm_op_names[SVM_OPCOUNT] = {
   "ACCEPT"
 };
 
-PUSH_WARNINGS
-WARNING_ALLOW_DATA_POINTER_CAST_TO_CODE_POINTER
 void dump_rvm_prog(HRVMProg *prog) {
   char* symref;
   for (unsigned int i = 0; i < prog->length; i++) {
@@ -109,4 +107,3 @@ void dump_svm_prog(HRVMProg *prog, HRVMTrace *trace) {
     }
   }
 }
-POP_WARNINGS
