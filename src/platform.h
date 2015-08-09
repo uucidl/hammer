@@ -49,7 +49,7 @@ struct HStopWatch {
 #include <time.h>
 
 struct HStopWatch {
-  struct timespec start;
+  struct timespec ts_start;
 };
 
 #endif

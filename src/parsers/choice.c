@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include "ma.h"
 #include "parser_internal.h"
 
 static HParseResult* parse_choice(void *env, HParseState *state) {

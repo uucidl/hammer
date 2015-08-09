@@ -63,6 +63,7 @@ misc_hammer_parts = [
     'glue.c',
     'hammer.c',
     'platform_bsdlike.c',
+    'platform_posix.c',
     'pprint.c',
     'registry.c',
     'system_allocator.c']

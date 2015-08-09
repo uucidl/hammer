@@ -1,6 +1,5 @@
 #include "platform.h"
 
-#include <err.h>
 #include <stdarg.h>
 
 #ifdef __MACH__
@@ -12,17 +11,11 @@
 #include <sys/resource.h>
 #endif
 
-void h_platform_errx(int errno, const char* format, ...) {
-  va_list ap;
-  va_start(ap, format);
-  verrx(errno, format, ap);
-}
-
 static void h_benchmark_clock_gettime(struct timespec *ts) {
   if (ts == NULL)
     return;
 #ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
-  /* 
+  /*
    * This returns real time, not CPU time. See http://stackoverflow.com/a/6725161
    * Possible solution: http://stackoverflow.com/a/11659289
    */
@@ -51,13 +44,14 @@ static void h_benchmark_clock_gettime(struct timespec *ts) {
 }
 
 void h_platform_stopwatch_reset(struct HStopWatch* stopwatch) {
-  h_benchmark_clock_gettime(&stopwatch->start);
+  h_benchmark_clock_gettime(&stopwatch->ts_start);
 }
 
-int64_t platform_stopwatch_ns(struct HStopWatch* stopwatch) {
+uint64_t h_platform_stopwatch_ns(struct HStopWatch* stopwatch) {
   struct timespec ts_now;
   h_benchmark_clock_gettime(&ts_now);
 
   // time_diff is in ns
-  return (ts_now.tv_sec - ts_start.tv_sec) * 1000000000 + (ts_now.tv_nsec - ts_start.tv_nsec);
+  return (ts_now.tv_sec - stopwatch->ts_start.tv_sec) * 1000000000 +
+          (ts_now.tv_nsec - stopwatch->ts_start.tv_nsec);
 }
