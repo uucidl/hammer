@@ -3,13 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
+#include "../asprintf.h"
 
 // This is some spectacularly non-portable code... but whee!
+#define ENABLE_GETSYM 0
+
+#if ENABLE_GETSYM
 #include <dlfcn.h>
+#endif
+
 char* getsym(void* addr) {
   char* retstr;
-#if 0
+#if ENABLE_GETSYM
   // This will be fixed later.
   Dl_info dli;
   if (dladdr(addr, &dli) != 0 && dli.dli_sname != NULL) {
@@ -45,6 +50,8 @@ const char* svm_op_names[SVM_OPCOUNT] = {
   "ACCEPT"
 };
 
+PUSH_WARNINGS
+WARNING_ALLOW_DATA_POINTER_CAST_TO_CODE_POINTER
 void dump_rvm_prog(HRVMProg *prog) {
   char* symref;
   for (unsigned int i = 0; i < prog->length; i++) {
@@ -102,3 +109,4 @@ void dump_svm_prog(HRVMProg *prog, HRVMTrace *trace) {
     }
   }
 }
+POP_WARNINGS

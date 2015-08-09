@@ -25,16 +25,18 @@ struct HStopWatch; /* forward definition */
 void h_platform_stopwatch_reset(struct HStopWatch* stopwatch);
 
 /* return difference between last reset point and now */
-int64_t h_platform_stopwatch_ns(struct HStopWatch* stopwatch);
+uint64_t h_platform_stopwatch_ns(struct HStopWatch* stopwatch);
 
 /* Platform dependent definitions for HStopWatch */
 #if defined(_MSC_VER)
 
+__pragma(warning(push,1))
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
 #endif
 #include <windows.h>
 #undef WIN32_LEAN_AND_MEAN
+__pragma(warning(pop))
 
 struct HStopWatch {
   LARGE_INTEGER qpf;

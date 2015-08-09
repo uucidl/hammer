@@ -14,7 +14,7 @@ void h_platform_stopwatch_reset(struct HStopWatch* stopwatch) {
 }
 
 /* return difference between last reset point and now */
-int64_t h_platform_stopwatch_ns(struct HStopWatch* stopwatch) {
+uint64_t h_platform_stopwatch_ns(struct HStopWatch* stopwatch) {
   LARGE_INTEGER now;
   QueryPerformanceCounter(&now);
 

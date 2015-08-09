@@ -52,6 +52,7 @@ HTokenType h_allocate_token_type(const char* name) {
   }
   new_entry->name = name;
   new_entry->value = 0;
+  // TODO(uucidl) tsearch for windows
   Entry* probe = *(Entry**)tsearch(new_entry, &tt_registry, compare_entries);
   if (probe->value != 0) {
     // Token type already exists...
@@ -80,6 +81,7 @@ HTokenType h_allocate_token_type(const char* name) {
 HTokenType h_get_token_type_number(const char* name) {
   Entry e;
   e.name = name;
+  // TODO(uucidl): tfind for windows
   Entry **ret = (Entry**)tfind(&e, &tt_registry, compare_entries);
   if (ret == NULL)
     return 0;
