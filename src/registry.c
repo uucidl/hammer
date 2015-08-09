@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <search.h>
+#include <search.h> // TODO(uucidl) win32 implementation (binary tree? hashtable?)
 #include <stdlib.h>
 #include "hammer.h"
 #include "internal.h"

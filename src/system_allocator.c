@@ -4,39 +4,60 @@
 
 //#define DEBUG__MEMFILL 0xFF
 
-static void* system_alloc(HAllocator *allocator, size_t size) {
-  
-  void* ptr = malloc(size + sizeof(size_t));
-  if (!ptr) {
-    return NULL;
-  }
-#ifdef DEBUG__MEMFILL
-  memset(ptr, DEBUG__MEMFILL, size + sizeof(size_t));
-#endif
-  *(size_t*)ptr = size;
-  return ptr + sizeof(size_t);
+typedef struct HSystemAllocHeader_
+{
+  size_t size;
+} HSystemAllocHeader;
+
+static inline size_t compute_block_size(size_t size) {
+  return sizeof(HSystemAllocHeader) + size;
 }
 
-static void* system_realloc(HAllocator *allocator, void* ptr, size_t size) {
-  if (!ptr) {
+static inline HSystemAllocHeader* get_user_ptr_block(void *uptr) {
+  return (HSystemAllocHeader*)((char*)uptr - sizeof(HSystemAllocHeader));
+}
+
+static inline void* get_user_ptr(HSystemAllocHeader *header) {
+  return header + 1;
+}
+
+static void* system_alloc(HAllocator *allocator, size_t size) {
+  size_t block_size = compute_block_size(size);
+  HSystemAllocHeader *header = malloc(block_size);
+  if (!header) {
+    return NULL;
+  }
+  void *uptr = get_user_ptr(header);
+#ifdef DEBUG__MEMFILL
+  memset(uptr, DEBUG__MEMFILL, block_size);
+#endif
+  header->size = size;
+  return uptr;
+}
+
+static void* system_realloc(HAllocator *allocator, void* uptr, size_t size) {
+  if (!uptr) {
     return system_alloc(allocator, size);
   }
-  ptr = realloc(ptr - sizeof(size_t), size + sizeof(size_t));
-  if (!ptr) {
+  HSystemAllocHeader* header = realloc(get_user_ptr_block(uptr), compute_block_size(size));
+  if (!header) {
     return NULL;
   }
-  *(size_t*)ptr = size;
+  uptr = get_user_ptr(header);
+
 #ifdef DEBUG__MEMFILL
-  size_t old_size = *(size_t*)ptr;
+  size_t old_size = header->size;
+  
   if (size > old_size)
-    memset(ptr+sizeof(size_t)+old_size, DEBUG__MEMFILL, size - old_size);
+    memset((char*)uptr+old_size, DEBUG__MEMFILL, size - old_size);
 #endif
-  return ptr + sizeof(size_t);
+  header->size = size;
+  return uptr;
 }
 
-static void system_free(HAllocator *allocator, void* ptr) {
-  if (ptr) {
-    free(ptr - sizeof(size_t));
+static void system_free(HAllocator *allocator, void* uptr) {
+  if (uptr) {
+    free(get_user_ptr_block(uptr));
   }
 }
 
