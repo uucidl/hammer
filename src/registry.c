@@ -99,7 +99,7 @@ static Entry* tt_names_insert(HCountedArray* array, Entry* position, const Entry
   return position;
 }
 
-#if USE_SEARCH
+#if USE_TSEARCH
 static int compare_entries(const void* v1, const void* v2) {
   const Entry *e1 = (Entry*)v1, *e2 = (Entry*)v2;
   return strcmp(e1->name, e2->name);
@@ -143,9 +143,10 @@ HTokenType h_allocate_token_type(const char* name) {
     probe->value = tt_next++;
     if ((size_t)(probe->value - TT_START) >= tt_name_by_id_sz) {
       if (tt_name_by_id_sz == 0) {
+        // TODO(uucidl): why not system allocator?
         tt_name_by_id = malloc(sizeof(*tt_name_by_id) * ((tt_name_by_id_sz = (tt_next - TT_START) * 16)));
       } else {
-        tt_name_by_id = realloc(tt_name_by_id, sizeof(*tt_name_by_id) * ((tt_name_by_id_sz *= 2)));
+        tt_name_by_id = realloc((void*)tt_name_by_id, sizeof(*tt_name_by_id) * ((tt_name_by_id_sz *= 2)));
       }
       if (!tt_name_by_id) {
         return TT_INVALID;
