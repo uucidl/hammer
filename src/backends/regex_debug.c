@@ -3,13 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
+#include "../asprintf.h"
 
 // This is some spectacularly non-portable code... but whee!
+#define ENABLE_GETSYM 0
+
+#if ENABLE_GETSYM
 #include <dlfcn.h>
+#endif
+
 char* getsym(void* addr) {
   char* retstr;
-#if 0
+#if ENABLE_GETSYM
   // This will be fixed later.
   Dl_info dli;
   if (dladdr(addr, &dli) != 0 && dli.dli_sname != NULL) {

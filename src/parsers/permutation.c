@@ -1,13 +1,10 @@
 #include <stdarg.h>
+
+#include "ma.h"
 #include "parser_internal.h"
 
-typedef struct {
-  size_t len;
-  HParser **p_array;
-} HSequence;
-
 // main recursion, used by parse_permutation below
-static int parse_permutation_tail(const HSequence *s,
+static int parse_permutation_tail(const HParserArray *s,
                                   HCountedArray *seq,
 				  const size_t k, char *set,
 				  HParseState *state)
@@ -72,7 +69,7 @@ static int parse_permutation_tail(const HSequence *s,
 
 static HParseResult *parse_permutation(void *env, HParseState *state)
 {
-  const HSequence *s = env;
+  const HParserArray *s = env;
   const size_t n = s->len;
 
   // current set of available (not yet matched) parsers 
@@ -129,7 +126,7 @@ HParser* h_permutation__v(HParser* p, va_list ap) {
 HParser* h_permutation__mv(HAllocator* mm__, HParser* p, va_list ap_) {
   va_list ap;
   size_t len = 0;
-  HSequence *s = h_new(HSequence, 1);
+  HParserArray *s = h_new(HParserArray, 1);
 
   HParser *arg;
   va_copy(ap, ap_);
@@ -156,21 +153,7 @@ HParser* h_permutation__a(void *args[]) {
 }
 
 HParser* h_permutation__ma(HAllocator* mm__, void *args[]) {
-  size_t len = -1; // because do...while
-  const HParser *arg;
-
-  do {
-    arg=((HParser **)args)[++len];
-  } while(arg);
-
-  HSequence *s = h_new(HSequence, 1);
-  s->p_array = h_new(HParser *, len);
-
-  for (size_t i = 0; i < len; i++) {
-    s->p_array[i] = ((HParser **)args)[i];
-  }
-
-  s->len = len;
+  HParserArray* s = sequence_for_args_with_sentinel(mm__, args);
   HParser *ret = h_new(HParser, 1);
   ret->vtable = &permutation_vt; 
   ret->env = (void*)s;

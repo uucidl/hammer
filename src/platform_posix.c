@@ -1,7 +1,6 @@
 #include "platform.h"
 
-#include <err.h>
-#include <stdarg.h>
+#include <alloca.h>
 
 #ifdef __MACH__
 #include <mach/clock.h>
@@ -12,15 +11,12 @@
 #include <sys/resource.h>
 #endif
 
-void h_platform_errx(int err, const char* format, ...) {
-  va_list ap;
-  va_start(ap, format);
-  verrx(err, format, ap);
+void* h_platform_stack_alloc_n(size_t elem_count, size_t elem_size)
+{
+  return alloca(elem_count * elem_size);
 }
 
-// TODO: replace this with a posix timer-based benchmark. (cf. timerfd_create, timer_create, setitimer)
-
-static void gettime(struct timespec *ts) {
+static void h_benchmark_clock_gettime(struct timespec *ts) {
   if (ts == NULL)
     return;
 #ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
@@ -53,14 +49,14 @@ static void gettime(struct timespec *ts) {
 }
 
 void h_platform_stopwatch_reset(struct HStopWatch* stopwatch) {
-  gettime(&stopwatch->start);
+  h_benchmark_clock_gettime(&stopwatch->ts_start);
 }
 
-int64_t h_platform_stopwatch_ns(struct HStopWatch* stopwatch) {
+uint64_t h_platform_stopwatch_ns(struct HStopWatch* stopwatch) {
   struct timespec ts_now;
-  gettime(&ts_now);
+  h_benchmark_clock_gettime(&ts_now);
 
   // time_diff is in ns
-  return (ts_now.tv_sec - stopwatch->start.tv_sec) * 1000000000
-	  + (ts_now.tv_nsec - stopwatch->start.tv_nsec);
+  return (ts_now.tv_sec - stopwatch->ts_start.tv_sec) * 1000000000 +
+          (ts_now.tv_nsec - stopwatch->ts_start.tv_nsec);
 }

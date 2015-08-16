@@ -22,6 +22,7 @@
 #include "internal.h"
 #include <stdlib.h>
 #include <inttypes.h>
+#include "asprintf.h"
 
 typedef struct pp_state {
   int delta;

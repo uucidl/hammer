@@ -1,14 +1,11 @@
 #include <stdarg.h>
 #include <assert.h>
+
+#include "ma.h"
 #include "parser_internal.h"
 
-typedef struct {
-  size_t len;
-  HParser **p_array;
-} HSequence;
-
 static HParseResult* parse_sequence(void *env, HParseState *state) {
-  HSequence *s = (HSequence*)env;
+  HParserArray *s = (HParserArray*)env;
   HCountedArray *seq = h_carray_new_sized(state->arena, (s->len > 0) ? s->len : 4);
   for (size_t i=0; i<s->len; ++i) {
     HParseResult *tmp = h_do_parse(s->p_array[i], state);
@@ -26,7 +23,7 @@ static HParseResult* parse_sequence(void *env, HParseState *state) {
 }
 
 static bool sequence_isValidRegular(void *env) {
-  HSequence *s = (HSequence*)env;
+  HParserArray *s = (HParserArray*)env;
   for (size_t i=0; i<s->len; ++i) {
     if (!s->p_array[i]->vtable->isValidRegular(s->p_array[i]->env))
       return false;
@@ -35,7 +32,7 @@ static bool sequence_isValidRegular(void *env) {
 }
 
 static bool sequence_isValidCF(void *env) {
-  HSequence *s = (HSequence*)env;
+  HParserArray *s = (HParserArray*)env;
   for (size_t i=0; i<s->len; ++i) {
     if (!s->p_array[i]->vtable->isValidCF(s->p_array[i]->env))
       return false;
@@ -65,7 +62,7 @@ static HParsedToken *reshape_sequence(const HParseResult *p, void* user_data) {
 }
 
 static void desugar_sequence(HAllocator *mm__, HCFStack *stk__, void *env) {
-  HSequence *s = (HSequence*)env;
+  HParserArray *s = (HParserArray*)env;
   HCFS_BEGIN_CHOICE() {
     HCFS_BEGIN_SEQ() {
       for (size_t i = 0; i < s->len; i++)
@@ -77,7 +74,7 @@ static void desugar_sequence(HAllocator *mm__, HCFStack *stk__, void *env) {
 }
 
 static bool sequence_ctrvm(HRVMProg *prog, void *env) {
-  HSequence *s = (HSequence*)env;
+  HParserArray *s = (HParserArray*)env;
   h_rvm_insert_insn(prog, RVM_PUSH, 0);
   for (size_t i=0; i<s->len; ++i) {
     if (!s->p_array[i]->vtable->compile_to_rvm(prog, s->p_array[i]->env))
@@ -125,7 +122,7 @@ HParser* h_sequence__mv(HAllocator* mm__, HParser *p, va_list ap_) {
     arg = va_arg(ap, HParser *);
   } while (arg);
   va_end(ap);
-  HSequence *s = h_new(HSequence, 1);
+  HParserArray *s = h_new(HParserArray, 1);
   s->p_array = h_new(HParser *, len);
 
   va_copy(ap, ap_);
@@ -144,21 +141,7 @@ HParser* h_sequence__a(void *args[]) {
 }
 
 HParser* h_sequence__ma(HAllocator* mm__, void *args[]) {
-  size_t len = -1; // because do...while
-  const HParser *arg;
-
-  do {
-    arg=((HParser **)args)[++len];
-  } while(arg);
-
-  HSequence *s = h_new(HSequence, 1);
-  s->p_array = h_new(HParser *, len);
-
-  for (size_t i = 0; i < len; i++) {
-    s->p_array[i] = ((HParser **)args)[i];
-  }
-
-  s->len = len;
+  HParserArray* s = sequence_for_args_with_sentinel(mm__, args);
   HParser *ret = h_new(HParser, 1);
   ret->vtable = &sequence_vt; 
   ret->env = (void*)s; 
