@@ -388,6 +388,16 @@ HParseResult *h_lr_parse(HAllocator* mm__, const HParser* parser, HInputStream* 
   HArena *tarena = h_new_arena(mm__, 0);    // tmp, deleted after parse
   HLREngine *engine = h_lrengine_new(arena, tarena, table, stream);
 
+  // out-of-memory handling
+  jmp_buf except;
+  h_arena_set_except(arena, &except);
+  h_arena_set_except(tarena, &except);
+  if(setjmp(except)) {
+    h_delete_arena(arena);
+    h_delete_arena(tarena);
+    return NULL;
+  }
+
   // iterate engine to completion
   while(h_lrengine_step(engine, h_lrengine_action(engine)));
 

@@ -561,6 +561,17 @@ HParseResult *h_llk_parse(HAllocator* mm__, const HParser* parser, HInputStream*
 {
   HLLkState *s = llk_parse_start_(mm__, parser);
 
+  // out-of-memory handling
+  jmp_buf except;
+  h_arena_set_except(s->arena, &except);
+  h_arena_set_except(s->tarena, &except);
+  if(setjmp(except)) {
+    h_delete_arena(s->arena);
+    h_delete_arena(s->tarena);
+    h_free(s);
+    return NULL;
+  }
+
   assert(stream->last_chunk);
   s->seq = llk_parse_chunk_(s, parser, stream);
 
