@@ -78,15 +78,6 @@
   } while(0)
 
   
-// TODO: replace uses of this with g_check_parse_failed
-#define g_check_failed(res) do {					\
-    const HParseResult *result = (res);					\
-    if (NULL != result) {						\
-      g_test_message("Check failed: shouldn't have succeeded, but did"); \
-      g_test_fail();							\
-    }									\
-  } while(0)
-
 #define g_check_parse_failed(parser, backend, input, inp_len) do {	\
     int skip = h_compile((HParser *)(parser), (HParserBackend)backend, NULL); \
     if(skip != 0) {	\
@@ -94,8 +85,9 @@
       g_test_fail();							\
       break;	\
     }	\
-    const HParseResult *result = h_parse(parser, (const uint8_t*)input, inp_len); \
+    HParseResult *result = h_parse(parser, (const uint8_t*)input, inp_len); \
     if (NULL != result) {						\
+      h_parse_result_free(result);					\
       g_test_message("Check failed: shouldn't have succeeded, but did"); \
       g_test_fail();							\
     }									\
@@ -119,7 +111,7 @@
                      "Inefficiency: %5f%%",				\
 		     stats.used, stats.wasted,				\
 		     stats.wasted * 100. / (stats.used+stats.wasted));	\
-      h_delete_arena(res->arena);					\
+      h_parse_result_free(res);						\
     }									\
   } while(0)
 
@@ -144,7 +136,7 @@
                      "Inefficiency: %5f%%",				\
 		     stats.used, stats.wasted,				\
 		     stats.wasted * 100. / (stats.used+stats.wasted));	\
-      h_delete_arena(res->arena);					\
+      h_parse_result_free(res);						\
     }									\
   } while(0)
 
@@ -167,8 +159,9 @@
     }									\
     h_parse_chunk(s, (const uint8_t*)chunk1, c1_len);			\
     h_parse_chunk(s, (const uint8_t*)chunk2, c2_len);			\
-    const HParseResult *res = h_parse_finish(s);			\
+    HParseResult *res = h_parse_finish(s);				\
     if (NULL != res) {							\
+      h_parse_result_free(res);						\
       g_test_message("Check failed: shouldn't have succeeded, but did"); \
       g_test_fail();							\
     }									\
@@ -207,7 +200,7 @@
                      "Inefficiency: %5f%%",				\
 		     stats.used, stats.wasted,				\
 		     stats.wasted * 100. / (stats.used+stats.wasted));	\
-      h_delete_arena(res->arena);					\
+      h_parse_result_free(res);						\
     }									\
   } while(0)
 
