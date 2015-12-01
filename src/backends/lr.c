@@ -426,6 +426,16 @@ bool h_lr_parse_chunk(HSuspendedParser* s, HInputStream *stream)
   engine->input = *stream;
 
   bool run = true;
+
+  // out-of-memory handling
+  jmp_buf except;
+  h_arena_set_except(engine->arena, &except);
+  h_arena_set_except(engine->tarena, &except);
+  if(setjmp(except)) {
+    run = false;                            // done immediately
+    assert(engine->state != HLR_SUCCESS);   // h_parse_finish will return NULL
+  }
+
   while(run) {
     // check input against table to determine which action to take
     const HLRAction *action = h_lrengine_action(engine);
@@ -440,6 +450,9 @@ bool h_lr_parse_chunk(HSuspendedParser* s, HInputStream *stream)
     if(engine->input.overrun && !engine->input.last_chunk)
       break;
   }
+
+  h_arena_set_except(engine->arena, NULL);
+  h_arena_set_except(engine->tarena, NULL);
 
   *stream = engine->input;
   return !run;  // done if engine no longer running

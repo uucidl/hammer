@@ -57,8 +57,9 @@ static void test_oom(void) {
   g_check_parse_failed(p, PB_LALR, "x",1);
   g_check_parse_failed(p, PB_GLR, "x",1);
 
+  //g_check_parse_chunks_failed(p, PB_REGULAR, "",0, "x",1);
   g_check_parse_chunks_failed(p, PB_LLk, "",0, "x",1);
-  //g_check_parse_chunks_failed(p, PB_LALR, "",0, "x",1);
+  g_check_parse_chunks_failed(p, PB_LALR, "",0, "x",1);
   //g_check_parse_chunks_failed(p, PB_GLR, "",0, "x",1);
 
   i = setrlimit(RLIMIT_DATA, &bak);
