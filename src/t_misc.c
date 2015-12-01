@@ -32,8 +32,9 @@ static void test_tt_registry(void) {
 
 // perform a big allocation during parsing to trigger out-of-memory handling
 static HParsedToken *act_big_alloc(const HParseResult *r, void *user) {
-  void *buf = h_arena_malloc(r->arena, 1024*1024*1024);
+  void *buf = h_arena_malloc(r->arena, 500*1024*1024);
   assert(buf != NULL);
+  g_test_message("Memory allocation was supposed to fail");
   return NULL;
 }
 static void test_oom(void) {
@@ -44,7 +45,7 @@ static void test_oom(void) {
   int i;
   i = getrlimit(RLIMIT_DATA, &bak);
   assert(i == 0);
-  lim.rlim_cur = 1000*1024*1024;   // never enough
+  lim.rlim_cur = 499*1024*1024;   // never enough
   if(lim.rlim_cur > bak.rlim_max)
     lim.rlim_cur = bak.rlim_max;
   lim.rlim_max = bak.rlim_max;
