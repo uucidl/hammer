@@ -589,6 +589,9 @@ bool h_llk_parse_chunk(HSuspendedParser *s, HInputStream *input)
 
   state->seq = llk_parse_chunk_(state, s->parser, input);
 
+  h_arena_set_except(state->arena, NULL);
+  h_arena_set_except(state->tarena, NULL);
+
   return (state->seq == NULL || h_slist_empty(state->stack));
 }
 
