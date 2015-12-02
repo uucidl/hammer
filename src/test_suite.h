@@ -78,20 +78,23 @@
   } while(0)
 
   
-#define g_check_parse_failed(parser, backend, input, inp_len) do {	\
-    int skip = h_compile((HParser *)(parser), (HParserBackend)backend, NULL); \
+#define g_check_parse_failed__m(mm__, parser, backend, input, inp_len) do { \
+    int skip = h_compile__m(mm__, (HParser *)(parser), (HParserBackend)backend, NULL); \
     if(skip != 0) {	\
       g_test_message("Compile failed");					\
       g_test_fail();							\
       break;	\
     }	\
-    HParseResult *result = h_parse(parser, (const uint8_t*)input, inp_len); \
+    HParseResult *result = h_parse__m(mm__, parser, (const uint8_t*)input, inp_len); \
     if (NULL != result) {						\
       h_parse_result_free(result);					\
       g_test_message("Check failed: shouldn't have succeeded, but did"); \
       g_test_fail();							\
     }									\
   } while(0)
+
+#define g_check_parse_failed(p, be, input, len)				\
+    g_check_parse_failed__m(&system_allocator, p, be, input, len)
 
 #define g_check_parse_ok(parser, backend, input, inp_len) do {		\
     int skip = h_compile((HParser *)(parser), (HParserBackend) backend, NULL); \
@@ -140,18 +143,18 @@
     }									\
   } while(0)
 
-#define g_check_parse_chunks_failed(parser, backend, chunk1, c1_len, chunk2, c2_len) do {	\
-    int skip = h_compile((HParser *)(parser), (HParserBackend)backend, NULL); \
+#define g_check_parse_chunks_failed__m(mm__, parser, backend, chunk1, c1_len, chunk2, c2_len) do { \
+    int skip = h_compile__m(mm__, (HParser *)(parser), (HParserBackend)backend, NULL); \
     if(skip) {								\
       g_test_message("Compile failed");					\
       g_test_fail();							\
       break;								\
     }									\
-    g_check_parse_chunks_failed_(parser, chunk1, c1_len, chunk2, c2_len); \
+    g_check_parse_chunks_failed___m(mm__, parser, chunk1, c1_len, chunk2, c2_len); \
   } while(0)
 
-#define g_check_parse_chunks_failed_(parser, chunk1, c1_len, chunk2, c2_len) do {	\
-    HSuspendedParser *s = h_parse_start(parser);			\
+#define g_check_parse_chunks_failed___m(mm__, parser, chunk1, c1_len, chunk2, c2_len) do { \
+    HSuspendedParser *s = h_parse_start__m(mm__, parser);		\
     if(!s) {								\
       g_test_message("Chunk-wise parsing not available");		\
       g_test_fail();							\
@@ -164,6 +167,46 @@
       h_parse_result_free(res);						\
       g_test_message("Check failed: shouldn't have succeeded, but did"); \
       g_test_fail();							\
+    }									\
+  } while(0)
+
+#define g_check_parse_chunks_failed(p, be, c1, c1_len, c2, c2_len) \
+  g_check_parse_chunks_failed__m(&system_allocator, p, be, c1, c1_len, c2, c2_len)
+
+#define g_check_parse_chunks_failed_(p, c1, c1_len, c2, c2_len) \
+  g_check_parse_chunks_failed___m(&system_allocator, p, c1, c1_len, c2, c2_len)
+
+#define g_check_parse_chunks_ok(parser, backend, chunk1, c1_len, chunk2, c2_len) do {	\
+    int skip = h_compile((HParser *)(parser), (HParserBackend)backend, NULL); \
+    if(skip) {								\
+      g_test_message("Compile failed");					\
+      g_test_fail();							\
+      break;								\
+    }									\
+    g_check_parse_chunks_ok_(parser, chunk1, c1_len, chunk2, c2_len); \
+  } while(0)
+
+#define g_check_parse_chunks_ok_(parser, chunk1, c1_len, chunk2, c2_len) do {	\
+    HSuspendedParser *s = h_parse_start(parser);			\
+    if(!s) {								\
+      g_test_message("Chunk-wise parsing not available");		\
+      g_test_fail();							\
+      break;								\
+    }									\
+    h_parse_chunk(s, (const uint8_t*)chunk1, c1_len);			\
+    h_parse_chunk(s, (const uint8_t*)chunk2, c2_len);			\
+    HParseResult *res = h_parse_finish(s);				\
+    if (!res) {								\
+      g_test_message("Parse failed on line %d", __LINE__);		\
+      g_test_fail();							\
+    } else {								\
+      HArenaStats stats;						\
+      h_allocator_stats(res->arena, &stats);				\
+      g_test_message("Parse used %zd bytes, wasted %zd bytes. "		\
+                     "Inefficiency: %5f%%",				\
+		     stats.used, stats.wasted,				\
+		     stats.wasted * 100. / (stats.used+stats.wasted));	\
+      h_parse_result_free(res);						\
     }									\
   } while(0)
 
