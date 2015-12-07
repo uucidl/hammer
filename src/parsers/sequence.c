@@ -93,6 +93,7 @@ static const HParserVtable sequence_vt = {
   .isValidCF = sequence_isValidCF,
   .desugar = desugar_sequence,
   .compile_to_rvm = sequence_ctrvm,
+  .higher = true,
 };
 
 HParser* h_sequence(HParser* p, ...) {
@@ -116,26 +117,33 @@ HParser* h_sequence__v(HParser* p, va_list ap) {
 }
 
 HParser* h_sequence__mv(HAllocator* mm__, HParser *p, va_list ap_) {
-  va_list ap;
-  size_t len = 0;
-  const HParser *arg;
-  va_copy(ap, ap_);
-  do {
-    len++;
-    arg = va_arg(ap, HParser *);
-  } while (arg);
-  va_end(ap);
   HSequence *s = h_new(HSequence, 1);
-  s->p_array = h_new(HParser *, len);
+  s->len = 0;
 
-  va_copy(ap, ap_);
-  s->p_array[0] = p;
-  for (size_t i = 1; i < len; i++) {
-    s->p_array[i] = va_arg(ap, HParser *);
-  } while (arg);
-  va_end(ap);
+  if(p) {
+    // non-empty sequence
+    const HParser *arg;
+    size_t len = 0;
+    va_list ap;
 
-  s->len = len;
+    va_copy(ap, ap_);
+    do {
+      len++;
+      arg = va_arg(ap, HParser *);
+    } while (arg);
+    va_end(ap);
+    s->p_array = h_new(HParser *, len);
+
+    va_copy(ap, ap_);
+    s->p_array[0] = p;
+    for (size_t i = 1; i < len; i++) {
+      s->p_array[i] = va_arg(ap, HParser *);
+    } while (arg);
+    va_end(ap);
+
+    s->len = len;
+  }
+
   return h_new_parser(mm__, &sequence_vt, s);
 }
 

@@ -4,7 +4,6 @@ typedef struct {
     const HParser *p;
     HContinuation k;
     void *env;
-    HAllocator *mm__;
 } BindEnv;
 
 // an HAllocator backed by an HArena
@@ -39,13 +38,11 @@ static HParseResult *parse_bind(void *be_, HParseState *state) {
     if(!res)
         return NULL;
 
-    // create a temporary arena allocator for the continuation
-    HArena *arena = h_new_arena(be->mm__, 0);
-    ArenaAllocator aa = {{aa_alloc, aa_realloc, aa_free}, arena};
+    // create a wrapper arena allocator for the continuation
+    ArenaAllocator aa = {{aa_alloc, aa_realloc, aa_free}, state->arena};
 
     HParser *kx = be->k((HAllocator *)&aa, res->ast, be->env);
     if(!kx) {
-        h_delete_arena(arena);
         return NULL;
     }
 
@@ -53,7 +50,6 @@ static HParseResult *parse_bind(void *be_, HParseState *state) {
     if(res2)
         res2->bit_length = 0;   // recalculate
 
-    h_delete_arena(arena);
     return res2;
 }
 
@@ -62,6 +58,7 @@ static const HParserVtable bind_vt = {
     .isValidRegular = h_false,
     .isValidCF = h_false,
     .compile_to_rvm = h_not_regular,
+    .higher = true,
 };
 
 HParser *h_bind(const HParser *p, HContinuation k, void *env)
@@ -77,7 +74,6 @@ HParser *h_bind__m(HAllocator *mm__,
     be->p = p;
     be->k = k;
     be->env = env;
-    be->mm__ = mm__;
 
     return h_new_parser(mm__, &bind_vt, be);
 }
