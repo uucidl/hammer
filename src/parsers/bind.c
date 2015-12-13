@@ -46,7 +46,11 @@ static HParseResult *parse_bind(void *be_, HParseState *state) {
         return NULL;
     }
 
-    return h_do_parse(kx, state);
+    HParseResult *res2 = h_do_parse(kx, state);
+    if(res2)
+        res2->bit_length = 0;   // recalculate
+
+    return res2;
 }
 
 static const HParserVtable bind_vt = {
