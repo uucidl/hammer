@@ -3,7 +3,8 @@ allocator.c
 benchmark.c
 bitreader.c 
 bitwriter.c 
-cfgrammar.c 
+cfgrammar.c
+datastructures.c
 desugar.c 
 glue.c 
 hammer.c 
