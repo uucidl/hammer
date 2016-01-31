@@ -9,7 +9,9 @@ desugar.c
 glue.c 
 hammer.c 
 pprint.c
+registry.c
 system_allocator.c
+tsearch.c
 parsers/action.c 
 parsers/and.c 
 parsers/attr_bool.c 

@@ -15,10 +15,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <search.h>
 #include <stdlib.h>
 #include "hammer.h"
 #include "internal.h"
+#include "tsearch.h"
+
+#if defined(_MSC_VER)
+#define h_strdup _strdup
+#else
+#define h_strdup strdup
+#endif
 
 typedef struct Entry_ {
   const char* name;
@@ -58,7 +64,7 @@ HTokenType h_allocate_token_type(const char* name) {
     return probe->value;
   } else {
     // new value
-    probe->name = strdup(probe->name); // drop ownership of name
+    probe->name = h_strdup(probe->name); // drop ownership of name
     probe->value = tt_next++;
     if ((probe->value - TT_START) >= tt_by_id_sz) {
       if (tt_by_id_sz == 0) {
