@@ -88,8 +88,10 @@ ctests = ['t_benchmark.c',
 static_library_name = 'hammer'
 build_shared_library=True
 if env['PLATFORM'] == 'win32':
-    build_shared_library=False # symbols in hammer are not exported yet, this shared lib would be useless
-    static_library_name = 'hammer_s' # prevent collision between .lib from dll and .lib for static lib
+    # FIXME(windows): symbols in hammer are not exported yet, a shared lib would be useless
+    build_shared_library=False
+    # prevent collision between .lib from dll and .lib for static lib
+    static_library_name = 'hammer_s'
 
 libhammer_shared = env.SharedLibrary('hammer', parsers + backends + misc_hammer_parts)
 libhammer_static = env.StaticLibrary(static_library_name, parsers + backends + misc_hammer_parts)
