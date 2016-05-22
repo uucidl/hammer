@@ -4,9 +4,13 @@ import os.path
 import platform
 import sys
 
+default_install_dir="/usr/local"
+if platform.system() == 'Windows':
+    default_install_dir = "build" # no obvious place for installation on Windows
+
 vars = Variables(None, ARGUMENTS)
 vars.Add(PathVariable('DESTDIR', "Root directory to install in (useful for packaging scripts)", None, PathVariable.PathIsDirCreate))
-vars.Add(PathVariable('prefix', "Where to install in the FHS", "/usr/local", PathVariable.PathAccept))
+vars.Add(PathVariable('prefix', "Where to install in the FHS", default_install_dir, PathVariable.PathAccept))
 vars.Add(ListVariable('bindings', 'Language bindings to build', 'none', ['cpp', 'dotnet', 'perl', 'php', 'python', 'ruby']))
 
 tools = ['default', 'scanreplace']
@@ -16,6 +20,9 @@ if 'dotnet' in ARGUMENTS.get('bindings', []):
 envvars = {'PATH' : os.environ['PATH']}
 if 'PKG_CONFIG_PATH' in os.environ:
     envvars['PKG_CONFIG_PATH'] = os.environ['PKG_CONFIG_PATH']
+if platform.system() == 'Windows':
+    # from the scons FAQ (keywords: LNK1104 TEMPFILE), needed by link.exe
+    envvars['TMP'] = os.environ['TMP']
 
 env = Environment(ENV = envvars,
                   variables = vars,
@@ -68,6 +75,12 @@ AddOption("--in-place",
           action="store_true",
           help="Build in-place, rather than in the build/<variant> tree")
 
+AddOption("--tests",
+          dest="with_tests",
+          default=env['PLATFORM'] != 'win32',
+          action="store_true",
+          help="Build tests")
+
 env["CC"] = os.getenv("CC") or env["CC"]
 env["CXX"] = os.getenv("CXX") or env["CXX"]
 
@@ -76,12 +89,28 @@ if os.getenv("CC") == "clang" or env['PLATFORM'] == 'darwin':
                 CXX="clang++")
 
 # Language standard and warnings
-env.MergeFlags("-std=gnu99 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-attributes -Wno-unused-variable")
+if env["CC"] == "cl":
+    env.MergeFlags("-W3 -WX")
+    env.Append(
+        CPPDEFINES=[
+            "_CRT_SECURE_NO_WARNINGS" # allow uses of sprintf
+        ],
+        CFLAGS=[
+            "-wd4018", # 'expression' : signed/unsigned mismatch
+            "-wd4244", # 'argument' : conversion from 'type1' to 'type2', possible loss of data
+            "-wd4267", # 'var' : conversion from 'size_t' to 'type', possible loss of data
+        ]
+    )
+else:
+    env.MergeFlags("-std=gnu99 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-attributes -Wno-unused-variable")
 
 # Linker options
 if env['PLATFORM'] == 'darwin':
     env.Append(SHLINKFLAGS = '-install_name ' + env["libpath"] + '/${TARGET.file}')
 elif platform.system() == "OpenBSD":
+    pass
+elif env['PLATFORM'] == 'win32':
+    # no extra lib needed
     pass
 else:
     env.MergeFlags("-lrt")
@@ -96,10 +125,16 @@ if GetOption("coverage"):
         env.ParseConfig('llvm-config --ldflags')
 
 dbg = env.Clone(VARIANT='debug')
-dbg.Append(CCFLAGS=['-g'])
+if env["CC"] == "cl":
+    dbg.Append(CCFLAGS=["/Z7"])
+else:
+    dbg.Append(CCFLAGS=['-g'])
 
 opt = env.Clone(VARIANT='opt')
-opt.Append(CCFLAGS=["-O3"])
+if env["CC"] == "cl":
+    opt.Append(CCFLAGS=["/O2"])
+else:
+    opt.Append(CCFLAGS=["-O3"])
 
 if GetOption("variant") == 'debug':
     env = dbg
