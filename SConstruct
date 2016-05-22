@@ -4,7 +4,6 @@ import os.path
 import platform
 import sys
 
-
 vars = Variables(None, ARGUMENTS)
 vars.Add(PathVariable('DESTDIR', "Root directory to install in (useful for packaging scripts)", None, PathVariable.PathIsDirCreate))
 vars.Add(PathVariable('prefix', "Where to install in the FHS", "/usr/local", PathVariable.PathAccept))
@@ -49,15 +48,6 @@ env['backendsincpath'] = calcInstallPath("$prefix", "include", "hammer", "backen
 env['pkgconfigpath'] = calcInstallPath("$prefix", "lib", "pkgconfig")
 env.ScanReplace('libhammer.pc.in')
 
-env.MergeFlags("-std=gnu99 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-attributes -Wno-unused-variable")
-
-if env['PLATFORM'] == 'darwin':
-    env.Append(SHLINKFLAGS = '-install_name ' + env["libpath"] + '/${TARGET.file}')
-elif os.uname()[0] == "OpenBSD":
-    pass
-else:
-    env.MergeFlags("-lrt")
-
 AddOption("--variant",
           dest="variant",
           nargs=1, type="choice",
@@ -78,6 +68,32 @@ AddOption("--in-place",
           action="store_true",
           help="Build in-place, rather than in the build/<variant> tree")
 
+env["CC"] = os.getenv("CC") or env["CC"]
+env["CXX"] = os.getenv("CXX") or env["CXX"]
+
+if os.getenv("CC") == "clang" or env['PLATFORM'] == 'darwin':
+    env.Replace(CC="clang",
+                CXX="clang++")
+
+# Language standard and warnings
+env.MergeFlags("-std=gnu99 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-attributes -Wno-unused-variable")
+
+# Linker options
+if env['PLATFORM'] == 'darwin':
+    env.Append(SHLINKFLAGS = '-install_name ' + env["libpath"] + '/${TARGET.file}')
+elif platform.system() == "OpenBSD":
+    pass
+else:
+    env.MergeFlags("-lrt")
+
+if GetOption("coverage"):
+    env.Append(CFLAGS=["--coverage"],
+               CXXFLAGS=["--coverage"],
+               LDFLAGS=["--coverage"])
+    if env["CC"] == "gcc":
+        env.Append(LIBS=['gcov'])
+    else:
+        env.ParseConfig('llvm-config --ldflags')
 
 dbg = env.Clone(VARIANT='debug')
 dbg.Append(CCFLAGS=['-g'])
@@ -89,22 +105,6 @@ if GetOption("variant") == 'debug':
     env = dbg
 else:
     env = opt
-
-env["CC"] = os.getenv("CC") or env["CC"]
-env["CXX"] = os.getenv("CXX") or env["CXX"]
-
-if GetOption("coverage"):
-    env.Append(CFLAGS=["--coverage"],
-               CXXFLAGS=["--coverage"],
-               LDFLAGS=["--coverage"])
-    if env["CC"] == "gcc":
-        env.Append(LIBS=['gcov'])
-    else:
-        env.ParseConfig('llvm-config --ldflags')
-
-if os.getenv("CC") == "clang" or env['PLATFORM'] == 'darwin':
-    env.Replace(CC="clang",
-                CXX="clang++")
 
 env["ENV"].update(x for x in os.environ.items() if x[0].startswith("CCC_"))
 
