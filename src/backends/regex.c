@@ -206,7 +206,7 @@ bool svm_stack_ensure_cap(HAllocator *mm__, HSVMContext *ctx, size_t addl) {
   return true;
 }
 
-HParseResult *run_trace(HAllocator *mm__, HRVMProg *orig_prog, HRVMTrace *trace, const uint8_t *input, int len) {
+HParseResult *run_trace(HAllocator *mm__, HRVMProg *orig_prog, HRVMTrace *trace_init, const uint8_t *input, int len) {
   // orig_prog is only used for the action table
   HSVMContext ctx;
   HArena *arena = h_new_arena(mm__, 0);
@@ -217,6 +217,7 @@ HParseResult *run_trace(HAllocator *mm__, HRVMProg *orig_prog, HRVMTrace *trace,
   // out of memory handling
   if(!arena || !ctx.stack)
     goto fail;
+  HRVMTrace* trace = trace_init;
   jmp_buf except;
   h_arena_set_except(arena, &except);
   if(setjmp(except))
