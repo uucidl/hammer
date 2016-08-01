@@ -62,7 +62,7 @@ If you've installed Hammer system-wide, you can use `pkg-config` in the usual wa
 
 To learn about hammer check
 * the [user guide](https://github.com/UpstandingHackers/hammer/wiki/User-guide)
-* [Hammer Primer](https://github.com/sergeybratus/HammerPrimer)
+* [Hammer Primer](https://github.com/sergeybratus/HammerPrimer) (outdated in terms of code, but good to get the general thinking)
 * [Try Hammer](https://github.com/sboesen/TryHammer)
 
 Examples
