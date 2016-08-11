@@ -29,7 +29,7 @@ Features
 Installing
 ==========
 ### Prerequisites
-* SCons
+* [SCons](http://scons.org/)
 
 ### Optional Dependencies
 * pkg-config (for `scons test`)
