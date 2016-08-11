@@ -35,7 +35,7 @@ Installing
 * pkg-config (for `scons test`)
 * glib-2.0 (>= 2.29) (for `scons test`)
 * glib-2.0-dev (for `scons test`)
-* swig (for Python/Perl/PHP bindings; Perl requires >= 2.0.8)
+* [swig](http://swig.org/) (for Python/Perl/PHP bindings; Perl requires >= 2.0.8)
 * python2.7-dev (for Python bindings)
 * a JDK (for Java bindings)
 * a working [phpenv](https://github.com/CHH/phpenv) configuration (for PHP bindings)
