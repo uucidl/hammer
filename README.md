@@ -41,7 +41,7 @@ Installing
 * a working [phpenv](https://github.com/CHH/phpenv) configuration (for PHP bindings)
 * [Ruby](https://www.ruby-lang.org/) >= 1.9.3 and bundler, for the Ruby bindings
 * mono-devel and mono-mcs (>= 3.0.6) (for .NET bindings)
-* nunit (for testing .NET bindings)
+* [nunit](http://www.nunit.org/) (for testing .NET bindings)
 
 To build, type `scons`. To run the built-in test suite, type `scons test`. For a debug build, add `--variant=debug`.
 
