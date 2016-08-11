@@ -68,8 +68,8 @@ To learn about hammer check
 Examples
 ========
 The `examples/` directory contains some simple examples, currently including:
-* base64
-* DNS
+* [base64](https://en.wikipedia.org/wiki/Base64)
+* [DNS](https://en.wikipedia.org/wiki/Domain_Name_System)
 
 Known Issues
 ============
