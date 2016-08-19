@@ -26,13 +26,8 @@
 #define h_strdup strdup
 #endif
 
-typedef struct Entry_ {
-  const char* name;
-  HTokenType value;
-} Entry;
-
 static void *tt_registry = NULL;
-static Entry** tt_by_id = NULL;
+static HTTEntry** tt_by_id = NULL;
 static unsigned int tt_by_id_sz = 0;
 #define TT_START TT_USER
 static HTokenType tt_next = TT_START;
@@ -40,23 +35,31 @@ static HTokenType tt_next = TT_START;
 /*
   // TODO: These are for the extension registry, which does not yet have a good name.
 static void *ext_registry = NULL;
-static Entry** ext_by_id = NULL;
+static HTTEntry** ext_by_id = NULL;
 static int ext_by_id_sz = 0;
 static int ext_next = 0;
 */
 
 
 static int compare_entries(const void* v1, const void* v2) {
-  const Entry *e1 = (Entry*)v1, *e2 = (Entry*)v2;
+  const HTTEntry *e1 = (HTTEntry*)v1, *e2 = (HTTEntry*)v2;
   return strcmp(e1->name, e2->name);
 }
 
-HTokenType h_allocate_token_type(const char* name) {
-  Entry* new_entry = h_alloc(&system_allocator, sizeof(*new_entry));
+static void default_unamb_sub(const HParsedToken* tok,
+                              struct result_buf* buf) {
+  h_append_buf_formatted(buf, "XXX AMBIGUOUS USER TYPE %d", tok->token_type);
+}
+
+HTokenType h_allocate_token_new(
+    const char* name,
+    void (*unamb_sub)(const HParsedToken *tok, struct result_buf *buf)) {
+  HTTEntry* new_entry = h_alloc(&system_allocator, sizeof(*new_entry));
   assert(new_entry != NULL);
   new_entry->name = name;
   new_entry->value = 0;
-  Entry* probe = *(Entry**)tsearch(new_entry, &tt_registry, compare_entries);
+  new_entry->unamb_sub = unamb_sub;
+  HTTEntry* probe = *(HTTEntry**)tsearch(new_entry, &tt_registry, compare_entries);
   if (probe->value != 0) {
     // Token type already exists...
     // TODO: treat this as a bug?
@@ -81,10 +84,13 @@ HTokenType h_allocate_token_type(const char* name) {
     return probe->value;
   }
 }
+HTokenType h_allocate_token_type(const char* name) {
+  return h_allocate_token_new(name, default_unamb_sub);
+}
 HTokenType h_get_token_type_number(const char* name) {
-  Entry e;
+  HTTEntry e;
   e.name = name;
-  Entry **ret = (Entry**)tfind(&e, &tt_registry, compare_entries);
+  HTTEntry **ret = (HTTEntry**)tfind(&e, &tt_registry, compare_entries);
   if (ret == NULL)
     return 0;
   else
@@ -95,4 +101,10 @@ const char* h_get_token_type_name(HTokenType token_type) {
     return NULL;
   else
     return tt_by_id[token_type - TT_START]->name;
+}
+const HTTEntry* h_get_token_type_entry(HTokenType token_type) {
+  if (token_type >= tt_next || token_type < TT_START)
+    return NULL;
+  else
+    return tt_by_id[token_type - TT_START];
 }
