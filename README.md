@@ -29,19 +29,19 @@ Features
 Installing
 ==========
 ### Prerequisites
-* SCons
+* [SCons](http://scons.org/)
 
 ### Optional Dependencies
 * pkg-config (for `scons test`)
 * glib-2.0 (>= 2.29) (for `scons test`)
 * glib-2.0-dev (for `scons test`)
-* swig (for Python/Perl/PHP bindings; Perl requires >= 2.0.8)
+* [swig](http://swig.org/) (for Python/Perl/PHP bindings; Perl requires >= 2.0.8)
 * python2.7-dev (for Python bindings)
 * a JDK (for Java bindings)
 * a working [phpenv](https://github.com/CHH/phpenv) configuration (for PHP bindings)
-* Ruby >= 1.9.3 and bundler, for the Ruby bindings
+* [Ruby](https://www.ruby-lang.org/) >= 1.9.3 and bundler, for the Ruby bindings
 * mono-devel and mono-mcs (>= 3.0.6) (for .NET bindings)
-* nunit (for testing .NET bindings)
+* [nunit](http://www.nunit.org/) (for testing .NET bindings)
 
 To build, type `scons`. To run the built-in test suite, type `scons test`. For a debug build, add `--variant=debug`.
 
@@ -68,8 +68,8 @@ To learn about hammer check
 Examples
 ========
 The `examples/` directory contains some simple examples, currently including:
-* base64
-* DNS
+* [base64](https://en.wikipedia.org/wiki/Base64)
+* [DNS](https://en.wikipedia.org/wiki/Domain_Name_System)
 
 Known Issues
 ============
