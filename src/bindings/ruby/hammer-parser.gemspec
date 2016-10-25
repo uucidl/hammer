@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
     "lib/hammer/internal.rb",
     "lib/hammer/parser.rb",
     "lib/hammer/parser_builder.rb",
-    "lib/hammer.rb",
+    "lib/hammer-parser.rb",
     "lib/minitest/hamer-parser_plugin.rb",
     "test/autogen_test.rb",
     "test/parser_test.rb"
