@@ -78,11 +78,6 @@ void gen_int_range(HAllocator *mm__, HCFStack *stk__, uint64_t low, uint64_t hig
   }
 }
 
-struct bits_env {
-  uint8_t length;
-  uint8_t signedp;
-};
-
 static void desugar_int_range(HAllocator *mm__, HCFStack *stk__, void *env) {
   HRange *r = (HRange*)env;
   struct bits_env* be = (struct bits_env*)r->p->env;

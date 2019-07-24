@@ -19,6 +19,7 @@ static void desugar_ch(HAllocator *mm__, HCFStack *stk__, void *env) {
 }
 
 static bool h_svm_action_ch(HArena *arena, HSVMContext *ctx, void* env) {
+  // TODO: copy paste, look at h_svm_action_Cs
   // BUG: relies un undefined behaviour: int64_t is a signed uint64_t; not necessarily true on 32-bit
   HParsedToken *top = ctx->stack[ctx->stack_count-1];
   assert(top->token_type == TT_BYTES);

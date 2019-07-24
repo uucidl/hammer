@@ -1,11 +1,5 @@
 #include "parser_internal.h"
 
-typedef struct {
-  const HParser *p1;
-  const HParser *p2;
-} HTwoParsers;
-
-
 static HParseResult* parse_butnot(void *env, HParseState *state) {
   HTwoParsers *parsers = (HTwoParsers*)env;
   // cache the initial state of the input stream

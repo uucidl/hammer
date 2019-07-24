@@ -1,11 +1,6 @@
 #include <assert.h>
 #include "parser_internal.h"
 
-struct bits_env {
-  uint8_t length;
-  uint8_t signedp;
-};
-
 static HParseResult* parse_bits(void* env, HParseState *state) {
   struct bits_env *env_ = env;
   HParsedToken *result = a_new(HParsedToken, 1);

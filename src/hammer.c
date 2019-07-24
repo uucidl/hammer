@@ -36,13 +36,6 @@ static HParserBackendVTable *backends[PB_MAX + 1] = {
 
 /* Helper function, since these lines appear in every parser */
 
-typedef struct {
-  const HParser *p1;
-  const HParser *p2;
-} HTwoParsers;
-
-
-
 #define DEFAULT_ENDIANNESS (BIT_BIG_ENDIAN | BYTE_BIG_ENDIAN)
 
 HParseResult* h_parse(const HParser* parser, const uint8_t* input, size_t length) {

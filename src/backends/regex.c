@@ -1,12 +1,15 @@
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+
 #include <string.h>
 #include <assert.h>
 #include "../internal.h"
 #include "../parsers/parser_internal.h"
 #include "regex.h"
 
-#undef a_new
-#define a_new(typ, count) a_new_(arena, typ, count)
+#define a_new_regex(typ, count) a_new_(arena, typ, count)
+
 // Stack VM
 typedef enum HSVMOp_ {
   SVM_PUSH, // Push a mark. There is no VM insn to push an object.
@@ -67,13 +70,13 @@ void* h_rvm_run__m(HAllocator *mm__, HRVMProg *prog, const uint8_t* input, size_
     goto end;
 
   HSArray *heads_n = heads_a, *heads_p = heads_b;
-  uint8_t *insn_seen = a_new(uint8_t, prog->length); // 0 -> not seen, 1->processed, 2->queued
-  HRVMThread *ip_queue = a_new(HRVMThread, prog->length);
+  uint8_t *insn_seen = a_new_regex(uint8_t, prog->length); // 0 -> not seen, 1->processed, 2->queued
+  HRVMThread *ip_queue = a_new_regex(HRVMThread, prog->length);
   size_t ipq_top;
 
 #define THREAD ip_queue[ipq_top-1]
 #define PUSH_SVM(op_, arg_) do { \
-	  HRVMTrace *nt = a_new(HRVMTrace, 1); \
+	  HRVMTrace *nt = a_new_regex(HRVMTrace, 1); \
 	  nt->arg = (arg_);		       \
 	  nt->opcode = (op_);		       \
 	  nt->next = THREAD.trace;	       \
@@ -81,7 +84,7 @@ void* h_rvm_run__m(HAllocator *mm__, HRVMProg *prog, const uint8_t* input, size_
 	  THREAD.trace = nt;		       \
   } while(0)
 
-  ((HRVMTrace*)h_sarray_set(heads_n, 0, a_new(HRVMTrace, 1)))->opcode = SVM_NOP; // Initial thread
+  ((HRVMTrace*)h_sarray_set(heads_n, 0, a_new_regex(HRVMTrace, 1)))->opcode = SVM_NOP; // Initial thread
   
   size_t off = 0;
   int live_threads = 1; // May be redundant
@@ -257,7 +260,7 @@ HParseResult *run_trace(HAllocator *mm__, HRVMProg *orig_prog, HRVMTrace *trace,
       if (!svm_stack_ensure_cap(mm__, ctx, 1)) {
 	goto fail;
       }
-      tmp_res = a_new(HParsedToken, 1);
+      tmp_res = a_new_regex(HParsedToken, 1);
       tmp_res->token_type = TT_MARK;
       tmp_res->index = cur->input_pos;
       tmp_res->bit_offset = 0;
@@ -288,7 +291,7 @@ HParseResult *run_trace(HAllocator *mm__, HRVMProg *orig_prog, HRVMTrace *trace,
       break;
     case SVM_ACCEPT:
       assert(ctx->stack_count <= 1);
-      HParseResult *res = a_new(HParseResult, 1);
+      HParseResult *res = a_new_regex(HParseResult, 1);
       if (ctx->stack_count == 1) {
 	res->ast = ctx->stack[0];
       } else {

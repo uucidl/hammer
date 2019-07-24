@@ -2,11 +2,6 @@
 #include <assert.h>
 #include "parser_internal.h"
 
-typedef struct {
-  size_t len;
-  HParser **p_array;
-} HSequence;
-
 static HParseResult* parse_sequence(void *env, HParseState *state) {
   HSequence *s = (HSequence*)env;
   HCountedArray *seq = h_carray_new_sized(state->arena, (s->len > 0) ? s->len : 4);

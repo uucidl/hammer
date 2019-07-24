@@ -1,11 +1,6 @@
 #include <stdarg.h>
 #include "parser_internal.h"
 
-typedef struct {
-  size_t len;
-  HParser **p_array;
-} HSequence;
-
 // main recursion, used by parse_permutation below
 static int parse_permutation_tail(const HSequence *s,
                                   HCountedArray *seq,

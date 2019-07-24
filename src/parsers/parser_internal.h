@@ -10,6 +10,21 @@
 #include "../backends/regex.h"
 #include "../backends/contextfree.h"
 
+typedef struct {
+  size_t len;
+  HParser **p_array;
+} HSequence;
+
+typedef struct {
+  const HParser *p1;
+  const HParser *p2;
+} HTwoParsers;
+
+struct bits_env {
+  uint8_t length;
+  uint8_t signedp;
+};
+
 #define a_new_(arena, typ, count) ((typ*)h_arena_malloc((arena), sizeof(typ)*(count)))
 #define a_new(typ, count) a_new_(state->arena, typ, count)
 // we can create a_new0 if necessary. It would allocate some memory and immediately zero it out.

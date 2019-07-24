@@ -16,6 +16,8 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
+
 #include "hammer.h"
 #include "internal.h"
 #include "tsearch.h"

@@ -15,12 +15,6 @@
 #  endif
 #endif
 
-typedef struct {
-  size_t len;
-  HParser **p_array;
-} HSequence;
-
-
 static HParseResult* parse_choice(void *env, HParseState *state) {
   HSequence *s = (HSequence*)env;
   HInputStream backup = state->input_stream;

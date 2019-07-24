@@ -19,7 +19,7 @@ static void desugar_charset(HAllocator *mm__, HCFStack *stk__, void *env) {
   HCFS_ADD_CHARSET( (HCharset)env );
 }
 
-static bool h_svm_action_ch(HArena *arena, HSVMContext *ctx, void* env) {
+static bool h_svm_action_cs(HArena *arena, HSVMContext *ctx, void* env) {
   // BUG: relies un undefined behaviour: int64_t is a signed uint64_t; not necessarily true on 32-bit
   HParsedToken *top = ctx->stack[ctx->stack_count-1];
   assert(top->token_type == TT_BYTES);
@@ -66,7 +66,7 @@ static bool cs_ctrvm(HRVMProg *prog, void *env) {
   }
 
   h_rvm_insert_insn(prog, RVM_CAPTURE, 0);
-  h_rvm_insert_insn(prog, RVM_ACTION, h_rvm_create_action(prog, h_svm_action_ch, env));
+  h_rvm_insert_insn(prog, RVM_ACTION, h_rvm_create_action(prog, h_svm_action_cs, env));
   return true;
 }
 

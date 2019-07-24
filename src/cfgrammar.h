@@ -1,3 +1,6 @@
+#ifndef HAMMER_CFGRAMMAR__H
+#define HAMMER_CFGRAMMAR__H
+
 /* Context-free grammar representation and analysis */
 
 #include "internal.h"
@@ -106,3 +109,5 @@ void h_pprint_stringmap(FILE *file, char sep,
                         void (*valprint)(FILE *f, void *env, void *val), void *env,
                         const HStringMap *map);
 void h_pprint_char(FILE *file, uint8_t c);
+
+#endif
