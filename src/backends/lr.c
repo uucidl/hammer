@@ -420,6 +420,11 @@ void h_lr_parse_start(HSuspendedParser *s)
   s->backend_state = engine;
 }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic ignored "-Wclobbered"
+#endif
 bool h_lr_parse_chunk(HSuspendedParser* s, HInputStream *stream)
 {
   HLREngine *engine = s->backend_state;
@@ -457,6 +462,10 @@ bool h_lr_parse_chunk(HSuspendedParser* s, HInputStream *stream)
   *stream = engine->input;
   return !run;  // done if engine no longer running
 }
+// Reenable -Wclobber
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 HParseResult *h_lr_parse_finish(HSuspendedParser *s)
 {
