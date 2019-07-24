@@ -66,6 +66,9 @@ set WARNINGS=%WARNINGS% -wd4127
 REM c4668 (an undefined symbol in a preprocessor directive) is not useful
 set WARNINGS=%WARNINGS% -wd4668
 
+REM c5045 (Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified) is not useful
+Set WARNINGS=%WARNINGS% -wd5045
+
 REM we use sprintf so this should be enabled
 set DEFINES=-D_CRT_SECURE_NO_WARNINGS
 
